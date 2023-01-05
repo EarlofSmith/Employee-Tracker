@@ -15,24 +15,9 @@ const overview = () => {
         if (choice.view === 'View All Employes') {
             // link employes from database
         }else if (choice.view === 'Add Employee') {
-            inquirer.prompt([
-                {
-                    type: 'input',
-                    message: 'Enter Employee Name: ',
-                    name: 'employee_name'
-                }
-            ])
-            .then(response => {
-                // add new employee to the database
-            })
+            addEmployee();
         }else if (choice.view === 'Update Employee Role') {
-            inquirer.prompt([
-                {
-                    type: 'input',
-                    message: '',
-                    name: 'update_role'
-                }
-            ])
+            updateRole();
         }else if (choice.view === 'View All Roles') {
             // grad roles from database
         }else if (choice.view ==='Add Role') {
@@ -40,13 +25,7 @@ const overview = () => {
         }else if (choice.view === 'View All Departments') {
             // link departments from database
         }else if (choice.view === 'Add Department' ) {
-            inquirer.prompt([
-                {
-                    type: 'input',
-                    message: 'What is the name of the Department you would like to add?',
-                    name: 'add_department'
-                }
-            ])
+            addDepartment();
         }
     })
 };
@@ -79,9 +58,64 @@ const addRole = () => {
                     message: 'To what department will you like to add this role?',
                     name: 'addRoleDepartment',
                     choices: [],
+                    // add choices from database
                 }
               
         ])
     };
+
+    const addEmployee = () => {
+        inquirer.prompt([
+            {
+                type: 'input',
+                message: 'What is the first name of the employee you would you like to add?',
+                name: 'first_name'
+            },
+            {
+                type: 'input',
+                message: 'What is the last name of the employee you would you like to add?',
+                name: 'last_name'
+            },
+            {
+                type: 'input',
+                message: 'What is the role ID number of the employee you would you like to add?',
+                name: 'role'
+            },
+            {
+                type: 'input',
+                message: 'What is the manager ID number of the employee you would you like to add?',
+                name: 'manager'
+            }
+        ])
+    };
+    
+    const updateRole = () => {
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: 'Which employees role would your like to update?',
+                name: 'update_role',
+                choices: '',
+                // add choices from database
+            },
+            {
+                type: 'list',
+                message: 'What new role would you like to assign to the employee?',
+                name: 'new_role',
+                choices: '',
+                // add choices from database
+            }
+        ])
+    };
+    
+    const addDepartment = () => {
+            inquirer.prompt([
+                {
+                    type: 'input',
+                    message: 'What is the name of the Department you would like to add?',
+                    name: 'add_department'
+                }
+            ])
+    }
 
 overview();
