@@ -1,6 +1,7 @@
+const fs = require('fs')
 const inquirer = require('inquirer');
 
-function overview() {
+const overview = () => {
     inquirer.prompt([
         {
             type: 'list',
@@ -18,7 +19,7 @@ function overview() {
                 {
                     type: 'input',
                     message: 'Enter Employee Name: ',
-                    name: 'employee-name'
+                    name: 'employee_name'
                 }
             ])
             .then(response => {
@@ -29,22 +30,13 @@ function overview() {
                 {
                     type: 'input',
                     message: '',
-                    name: 'update-role'
+                    name: 'update_role'
                 }
             ])
         }else if (choice.view === 'View All Roles') {
             // grad roles from database
         }else if (choice.view ==='Add Role') {
-            inquirer.prompt([
-                {
-                    type: 'input',
-                    message: 'What is the name of the role you would like to add?',
-                    name: 'add-role',
-                }
-            ])
-            .then(addRole => {
-                // add role to the database
-            })
+            addRole();
         }else if (choice.view === 'View All Departments') {
             // link departments from database
         }else if (choice.view === 'Add Department' ) {
@@ -52,9 +44,44 @@ function overview() {
                 {
                     type: 'input',
                     message: 'What is the name of the Department you would like to add?',
-                    name: 'add-department'
+                    name: 'add_department'
                 }
             ])
         }
     })
 };
+
+const ViewAllEmployees = () => {
+
+}
+
+const addRole = () => {
+        inquirer.prompt([
+                {
+                    type: 'input',
+                    message: 'What is the name of the role you would like to add?',
+                    name: 'add_role',
+                    validate: add_role => {
+                        if (add_role) {
+                            return true;
+                        } else {
+                            return 'Please enter role.';
+                        }
+                    }
+                },
+                {
+                    type: 'input',
+                    message: 'What is the salary of the role?',
+                    name: 'add_salary',
+                },
+                {
+                    type: 'list',
+                    message: 'To what department will you like to add this role?',
+                    name: 'addRoleDepartment',
+                    choices: [],
+                }
+              
+        ])
+    };
+
+overview();
