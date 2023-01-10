@@ -68,15 +68,12 @@ const viewAllDepartments = () => {
             throw err
         }
         console.log('Here are all the current Departments');
-        console.log('');
         console.table(res);
-        console.log('=====================================');
         overview();
     })
 };
 
 const addRole = () => {
-    const deparmentList = 'SELECT * FROM departments'
         inquirer.prompt([
                 {
                     type: 'input',
@@ -96,16 +93,29 @@ const addRole = () => {
                     name: 'add_salary',
                 },
                 {
+                    
                     type: 'list',
                     message: 'To what department will you like to add this role?',
                     name: 'addRoleDepartment',
-                    choices: [db.query(deparmentList)],
+                    choices: departmentsArray,
                 }
               
-        ]).then ((choice) => {
-            console.log(choice);
-            overview();
+        ]).then ((info) => {
+            const newRole= 'INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)'
+            const dpartmentID = 
+            // need some kind of join here to turn department name into department id
+            db.query(newRole, [info.add_role, info.add_salary, info.addRoleDepartment], (err)=>{
+                if (err) {
+                    throw err;
+                }
+                rolesArray.push(info.addRole)
+                console.log('You have successfully added a new role')
+                console.table(info);
+                overview();
         })
+
+            })
+            
        
     };
 
@@ -131,24 +141,23 @@ const addRole = () => {
                 message: 'What is the manager ID number of the employee you would you like to add?',
                 name: 'manager'
             }
-        ])
+        ]).then()
     };
     
     const updateRole = () => {
+        
         inquirer.prompt([
             {
                 type: 'list',
-                message: 'Which employees role would your like to update?',
+                message: 'Which employee would your like to update their role?',
                 name: 'update_role',
-                choices: '',
-                // add choices from database
+                choices: employeesArray,
             },
             {
                 type: 'list',
                 message: 'What new role would you like to assign to the employee?',
                 name: 'new_role',
-                choices: '',
-                // add choices from database
+                choices: rolesArray,
             }
         ])
     };
@@ -161,6 +170,40 @@ const addRole = () => {
                     name: 'add_department'
                 }
             ])
-    }
+    };
+
+    const employeesArray = [];
+        const grabEmployees = 'SELECT first_name FROM employees'
+        db.query(grabEmployees, (err, res) => {
+            if (err) {
+                throw err
+            }
+            res.forEach(({first_name}) =>{
+                employeesArray.push(first_name);
+            });
+        });
+
+        const rolesArray = [];
+        const grabroles = 'SELECT title FROM roles'
+        db.query(grabroles, (err, res) => {
+            if (err) {
+                throw err
+            }
+            res.forEach(({title}) =>{
+                rolesArray.push(title);
+            });
+        });
+
+        const departmentsArray = [];
+        const grabdepartments = 'SELECT department_name FROM departments'
+        db.query(grabdepartments, (err, res) => {
+            if (err) {
+                throw err
+            }
+            res.forEach(({department_name}) =>{
+                departmentsArray.push(department_name);
+            });
+        });
+
 
 overview();
