@@ -1,5 +1,6 @@
 const fs = require('fs')
 const inquirer = require('inquirer');
+const db = require('./db/connections');
 
 const overview = () => {
     inquirer.prompt([
@@ -7,7 +8,7 @@ const overview = () => {
             type: 'list',
             message: 'What would your like to do?',
             name: 'view',
-            choices: ['View All Employes', 'Add Employee', 'Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department']
+            choices: ['View All Employees', 'Add Employee', 'Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department']
         }
 
     ])
@@ -19,7 +20,7 @@ const overview = () => {
         }else if (choice.view === 'Update Employee Role') {
             updateRole();
         }else if (choice.view === 'View All Roles') {
-            // grad roles from database
+            viewAllRoles();
         }else if (choice.view ==='Add Role') {
             addRole();
         }else if (choice.view === 'View All Departments') {
@@ -31,12 +32,12 @@ const overview = () => {
 };
 
 const ViewAllEmployees = () => {
-    const employeeList = `SELECT  employees.id, employees.first_name AS First, employees.last_name As Last, roles.title as Title, departments.department_name AS Department, roles.salary AS Salary, employees.manager_id As Manager`
-    db.query(employeeList,(err, res) => {
+    const employeeList = `SELECT * FROM employees`
+    db.query(employeeList, (err, res) => {
         if (err) {
             throw err
         }
-        console.log('View All Employees');
+        console.log('All Employees');
         console.log('');
         console.table(res);
         console.log('=====================================');
@@ -44,9 +45,23 @@ const ViewAllEmployees = () => {
 
     })
 
-}
+};
 
+const viewAllRoles = () => {
+    const rolesList = `SELECT * FROM roles`
+    db.query(rolesList,(err, res) => {
+        if (err) {
+            throw err
+        }
+        console.log('All Roles');
+        console.log('');
+        console.table(res);
+        console.log('=====================================');
+        overview();
+    })
+}
 const addRole = () => {
+    const deparmentList = 'SELECT departments.department_name AS Department'
         inquirer.prompt([
                 {
                     type: 'input',
@@ -69,11 +84,15 @@ const addRole = () => {
                     type: 'list',
                     message: 'To what department will you like to add this role?',
                     name: 'addRoleDepartment',
-                    choices: [],
+                    choices: [deparmentList],
                     // add choices from database
                 }
               
-        ])
+        ]).then ((choice) => {
+            console.log(choice);
+            overview();
+        })
+       
     };
 
     const addEmployee = () => {
