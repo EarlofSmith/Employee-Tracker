@@ -24,7 +24,7 @@ const overview = () => {
         }else if (choice.view ==='Add Role') {
             addRole();
         }else if (choice.view === 'View All Departments') {
-            // link departments from database
+            viewAllDepartments();
         }else if (choice.view === 'Add Department' ) {
             addDepartment();
         }
@@ -32,12 +32,12 @@ const overview = () => {
 };
 
 const ViewAllEmployees = () => {
-    const employeeList = `SELECT * FROM employees`
+    const employeeList = `SELECT * FROM employees INNER JOIN roles ON employees.role_id = roles.id INNER JOIN departments ON departments.id = roles.department_id;`
     db.query(employeeList, (err, res) => {
         if (err) {
             throw err
         }
-        console.log('All Employees');
+        console.log('Here are all the current Employees');
         console.log('');
         console.table(res);
         console.log('=====================================');
@@ -53,15 +53,30 @@ const viewAllRoles = () => {
         if (err) {
             throw err
         }
-        console.log('All Roles');
+        console.log('Here are all the current roles');
         console.log('');
         console.table(res);
         console.log('=====================================');
         overview();
     })
-}
+};
+
+const viewAllDepartments = () => {
+    const deparmentList = 'SELECT * FROM departments'
+    db.query(deparmentList,(err, res) => {
+        if (err) {
+            throw err
+        }
+        console.log('Here are all the current Departments');
+        console.log('');
+        console.table(res);
+        console.log('=====================================');
+        overview();
+    })
+};
+
 const addRole = () => {
-    const deparmentList = 'SELECT departments.department_name AS Department'
+    const deparmentList = 'SELECT * FROM departments'
         inquirer.prompt([
                 {
                     type: 'input',
@@ -84,8 +99,7 @@ const addRole = () => {
                     type: 'list',
                     message: 'To what department will you like to add this role?',
                     name: 'addRoleDepartment',
-                    choices: [deparmentList],
-                    // add choices from database
+                    choices: [db.query(deparmentList)],
                 }
               
         ]).then ((choice) => {
