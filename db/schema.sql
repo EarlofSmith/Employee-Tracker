@@ -3,33 +3,24 @@ CREATE DATABASE company_db;
 
 USE company_db;
 
-CREATE TABLE department (
-  id INT NOT NULL,
-  department_name VARCHAR (30),
-  PRIMARY KEY (id)
+CREATE TABLE departments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  department_name VARCHAR (30) NOT NULL,
 );
 
 CREATE TABLE roles (
-  id INT,
-  title VARCHAR (30),
-  salary DECIMAL,
-  department_id INT,
-  FOREIGN KEY (department_id)
-  REFERENCES department(id)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR (30) NOT NULL,
+  salary DECIMAL(15,2) NOT NULL,
+  department_id INT NOT NULL,
   ON DELETE SET NULL
---   PRIMARY KEY (id)
 );
 
 CREATE TABLE employees (
-    id INT NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR (30),
     last_name VARCHAR (30),
     role_id INT NOT NULL,
-    manager_id INT NOT NULL,
-    FOREIGN KEY (role_id)
-    REFERENCES roles(id)
-    PRIMARY KEY (id)
-    FOREIGN KEY (manager_id)
-    REFERENCES employees(id)
+    manager_id INT ,
     ON DELETE SET NULL
 );

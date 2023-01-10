@@ -12,8 +12,8 @@ const overview = () => {
 
     ])
     .then(choice => {
-        if (choice.view === 'View All Employes') {
-            // link employes from database
+        if (choice.view === 'View All Employees') {
+            ViewAllEmployees();
         }else if (choice.view === 'Add Employee') {
             addEmployee();
         }else if (choice.view === 'Update Employee Role') {
@@ -31,6 +31,18 @@ const overview = () => {
 };
 
 const ViewAllEmployees = () => {
+    const employeeList = `SELECT  employees.id, employees.first_name AS First, employees.last_name As Last, roles.title as Title, departments.department_name AS Department, roles.salary AS Salary, employees.manager_id As Manager`
+    db.query(employeeList,(err, res) => {
+        if (err) {
+            throw err
+        }
+        console.log('View All Employees');
+        console.log('');
+        console.table(res);
+        console.log('=====================================');
+        overview();
+
+    })
 
 }
 
