@@ -2,6 +2,24 @@ const fs = require('fs')
 const inquirer = require('inquirer');
 const db = require('./db/connections');
 
+const startApp = () => {
+    console.log(` _____  _    _  ____   _       ___   _     _  _____  _____ `)
+    console.log(`|  ___|| \  / ||  _ \ | |     / _ \ \ \   / /|  ___||  ___|`)
+    console.log(`| |___ |  \/  || |_| || |    | | | | \ \_/ / | |___ | |___ `)
+    console.log(`|  ___||      ||  __/ | |    | | | |  \   /  |  ___||  ___|`)
+    console.log(`| |    | |/\| || |    | |    | | | |   | |   | |    | |    `)
+    console.log(`| |___ | |  | || |    | |___ | |_| |   | |   | |___ | |___ `)
+    console.log(`|_____||_|  |_||_|    |_____| \___/    |_|   |_____||_____|`)
+    console.log(` _____  ____   _____   ____  _   _  _____  ____  `)
+    console.log(`|_   _||  _ \ |  _  | /  __|| | | ||  ___||  _ \ `)
+    console.log(`  | |  | |_| || | | ||  /   | |/ / | |___ | |_| |`)
+    console.log(`  | |  |    / | |_| || |    |   /  |  ___||    / `)
+    console.log(`  | |  | |\ \ |  _  || |    |   \  | |    | |\ \ `)
+    console.log(`  | |  | | | || | | ||  \__ | |\ \ | |___ | | | |`)
+    console.log(`  |_|  |_| |_||_| |_| \____||_| |_||_____||_| |_|`)
+    overview();
+}
+
 const overview = () => {
     inquirer.prompt([
         {
@@ -28,14 +46,14 @@ const overview = () => {
         }else if (choice.view === 'Update Employee Role') {
             updateRole();
         }else if (choice.view === 'Exit') {
-            // exit();
+            process.exit();
         }
         
     })
 };
 
 const ViewAllEmployees = () => {
-    const employeeList = `SELECT * FROM employees INNER JOIN roles ON employees.role_id = roles.role_id INNER JOIN departments ON departments.id = roles.department_id;`
+    const employeeList = `SELECT employees.employee_id, employees.first_name AS First, employees.last_name as Last, roles.title AS Title, departments.department_name AS Department, roles.salary, employees.manager_id FROM employees INNER JOIN roles ON employees.role_id = roles.role_id INNER JOIN departments ON departments.id = roles.department_id;`
     db.query(employeeList, (err, res) => {
         if (err) {
             throw err
@@ -231,7 +249,7 @@ const addRole = () => {
     };
 
     const employeesArray = [];
-        const grabEmployees = 'SELECT first_name FROM employees'
+        const grabEmployees = `SELECT first_name FROM employees`
         db.query(grabEmployees, (err, res) => {
             if (err) {
                 throw err
@@ -264,4 +282,4 @@ const addRole = () => {
         });
 
 
-overview();
+startApp();
