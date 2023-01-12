@@ -8,31 +8,34 @@ const overview = () => {
             type: 'list',
             message: 'What would your like to do?',
             name: 'view',
-            choices: ['View All Employees', 'Add Employee', 'Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department']
+            choices: ['View All Employees','View All Roles', 'View All Departments',  'Add Role', 'Add Department', 'Add Employee', 'Update Employee Role', 'Exit']
         }
 
     ])
     .then(choice => {
         if (choice.view === 'View All Employees') {
             ViewAllEmployees();
+        }else if (choice.view === 'View All Roles') {
+            viewAllRoles(); 
+        }else if (choice.view === 'View All Departments') {
+            viewAllDepartments();       
+        }else if (choice.view ==='Add Role') {
+            addRole();
+        }else if (choice.view === 'Add Department' ) {
+            addDepartment();
         }else if (choice.view === 'Add Employee') {
             addEmployee();
         }else if (choice.view === 'Update Employee Role') {
             updateRole();
-        }else if (choice.view === 'View All Roles') {
-            viewAllRoles();
-        }else if (choice.view ==='Add Role') {
-            addRole();
-        }else if (choice.view === 'View All Departments') {
-            viewAllDepartments();
-        }else if (choice.view === 'Add Department' ) {
-            addDepartment();
+        }else if (choice.view === 'Exit') {
+            // exit();
         }
+        
     })
 };
 
 const ViewAllEmployees = () => {
-    const employeeList = `SELECT * FROM employees INNER JOIN roles ON employees.role_id = roles.id INNER JOIN departments ON departments.id = roles.department_id;`
+    const employeeList = `SELECT * FROM employees INNER JOIN roles ON employees.role_id = roles.role_id INNER JOIN departments ON departments.id = roles.department_id;`
     db.query(employeeList, (err, res) => {
         if (err) {
             throw err
@@ -48,7 +51,7 @@ const ViewAllEmployees = () => {
 };
 
 const viewAllRoles = () => {
-    const rolesList = `SELECT * FROM roles`
+    const rolesList = `SELECT * FROM roles LEFT JOIN departments on roles.department_id = departments.id`
     db.query(rolesList,(err, res) => {
         if (err) {
             throw err
@@ -112,7 +115,7 @@ const addRole = () => {
                     if (err) {
                         throw err;
                     }
-                    rolesArray.push(info.addRole)
+                    rolesArray.push(info.add_role)
                     console.log('You have successfully added a new role')
                     console.table(info);
                     overview();
@@ -136,8 +139,9 @@ const addRole = () => {
                 name: 'last_name'
             },
             {
-                type: 'input',
-                message: 'What is the role ID number of the employee you would you like to add?',
+                type: 'list',
+                message: 'What is the role of the employee you would you like to add?',
+                choices: rolesArray,
                 name: 'role'
             },
             {
@@ -146,16 +150,24 @@ const addRole = () => {
                 name: 'manager'
             }
         ]).then((info) => {
-            const newEmployee = `INSERT INTO employees(first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`
-            db.query(newEmployee,[info.first_name, info.last_name, info.role, info.manager], (err) => {
+            const rolechoice = 'SELECT role_id FROM roles WHERE title = ?'
+            db.query(rolechoice, info.role,(err,res) =>{
                 if (err) {
                     throw err;
                 }
-                console.log('You have successfully added a new employee')
-                console.table(info)
-                overview();
-            })
-        }) 
+                const rID = res[0].role_id;
+                const newEmployee = `INSERT INTO employees(first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`
+                db.query(newEmployee,[info.first_name, info.last_name, rID, info.manager], (err) => {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log('You have successfully added a new employee')
+                    console.table(info)
+                    employeesArray.push(info.first_name)
+                    overview();
+                })
+            }) 
+        })
     };
     
     const updateRole = () => {
@@ -174,12 +186,12 @@ const addRole = () => {
                 choices: rolesArray,
             }
         ]).then((info)=>{
-            const idUpdated = `SELECT id FROM roles WHERE title = ?`
+            const idUpdated = `SELECT role_id FROM roles WHERE title = ?`
             db.query(idUpdated, info.new_role,(err,res) =>{
                 if (err) {
                     throw err;
                 }
-                const roleID = res[0].id;
+                const roleID = res[0].role_id;
                 const roleUpdate = `UPDATE employees SET role_id = ? WHERE first_name = ?`
                 db.query(roleUpdate, [roleID, info.update_role], (err, res) => {
                     if (err) {
@@ -187,7 +199,8 @@ const addRole = () => {
                     }
                     console.log('')
                     console.log('You have successfully updated a employees role')
-                    console.log([roleID, info.update_role])
+                    console.log(`${info.update_role} role has been changed to ${info.new_role}`)
+                    console.log()
                     overview();
                 })
             })
@@ -202,14 +215,14 @@ const addRole = () => {
                     name: 'add_department'
                 }
             ]).then((info) => {
-                const newDepartment = `INSERT INTO departments (new_department) VALUES (?)`
+                const newDepartment = `INSERT INTO departments (department_name) VALUES (?)`
                 db.query(newDepartment, info.add_department, (err) => {
                     if (err) {
                         throw err
                     }
                     console.log('')
                     console.log('You have successfully created a new department')
-                    console.log(`The department ${info} has been added`)
+                    console.log(`The department ${info.add_department} has been added`)
                     console.log('')
                     departmentsArray.push(info.add_department)
                     overview();
