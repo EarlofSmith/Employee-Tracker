@@ -116,7 +116,7 @@ const ViewAllEmployees = () => {
 };
 
 const viewAllRoles = () => {
-    const rolesList = `SELECT * FROM roles LEFT JOIN departments on roles.department_id = departments.id`
+    const rolesList = `SELECT roles.role_id, roles.title, roles.salary, departments.department_name AS Department FROM roles LEFT JOIN departments ON roles.department_id = departments.id`
     db.query(rolesList,(err, res) => {
         if (err) {
             throw err
@@ -266,8 +266,10 @@ const addRole = () => {
                 if (err) {
                     throw err;
                 }
+                console.log(info.new_role);
                 const roleID = res[0].role_id;
-                const roleUpdate = `UPDATE employees SET role_id = ? WHERE first_name = ?`
+                console.log(roleID);
+                const roleUpdate = `UPDATE employees SET employees.role_id = ? WHERE CONCAT(employees.first_name,' ', employees.last_name) = ?`
                 db.query(roleUpdate, [roleID, info.update_role], (err, res) => {
                     if (err) {
                         throw err;
