@@ -26,7 +26,7 @@ const overview = () => {
             type: 'list',
             message: 'What would your like to do?',
             name: 'view',
-            choices: ['View All Employees','View All Roles', 'View All Departments',  'Add Role', 'Add Department', 'Add Employee', 'Update Employee Role', 'Exit']
+            choices: ['View All Employees','View All Roles', 'View All Departments', 'View Employees by department', 'Add Role', 'Add Department', 'Add Employee', 'Update Employee Role', 'Exit']
         }
 
     ])
@@ -37,6 +37,8 @@ const overview = () => {
             viewAllRoles(); 
         }else if (choice.view === 'View All Departments') {
             viewAllDepartments();       
+        }else if (choice.view === 'View Employees by department') {
+            ViewAllEmployeesByDept(); 
         }else if (choice.view ==='Add Role') {
             addRole();
         }else if (choice.view === 'Add Department' ) {
@@ -52,16 +54,38 @@ const overview = () => {
     })
 };
 
+const ViewAllEmployeesByDept = () => {
+    inquirer.prompt([
+        {
+            type: 'list',
+            message: 'What department would your like to see the employee list?',
+            name: 'dept_choice',
+            choices: departmentsArray
+        }
+    ]).then((info) => {
+        const deptEmployees = 'SELECT employees.employee_id, employees.first_name AS First, employees.last_name AS Last, roles.title AS Title, roles.salary AS Salary, employees.manager_id AS Manager FROM employees INNER JOIN roles On employees.role_id = roles.role_id INNER JOIN departments ON departments.id = roles.department_id WHERE departments.department_name = ?'
+            db.query(deptEmployees, info.dept_choice, (err,res) =>{
+                if (err) {
+                    throw err
+                }
+                console.log('');
+                console.log(`Viewing all employees from the ${info.dept_choice} department`);
+                console.log('');
+                console.table(res);
+                overview();
+            })
+    })
+}
 const ViewAllEmployees = () => {
     const employeeList = `SELECT employees.employee_id, employees.first_name AS First, employees.last_name as Last, roles.title AS Title, departments.department_name AS Department, roles.salary, employees.manager_id FROM employees INNER JOIN roles ON employees.role_id = roles.role_id INNER JOIN departments ON departments.id = roles.department_id;`
     db.query(employeeList, (err, res) => {
         if (err) {
             throw err
         }
+        console.log('');
         console.log('Here are all the current Employees');
         console.log('');
         console.table(res);
-        console.log('=====================================');
         overview();
 
     })
@@ -74,10 +98,10 @@ const viewAllRoles = () => {
         if (err) {
             throw err
         }
+        console.log('');
         console.log('Here are all the current roles');
         console.log('');
         console.table(res);
-        console.log('=====================================');
         overview();
     })
 };
@@ -88,7 +112,9 @@ const viewAllDepartments = () => {
         if (err) {
             throw err
         }
+        console.log('');
         console.log('Here are all the current Departments');
+        console.log('');
         console.table(res);
         overview();
     })
@@ -134,7 +160,9 @@ const addRole = () => {
                         throw err;
                     }
                     rolesArray.push(info.add_role)
+                    console.log('');
                     console.log('You have successfully added a new role')
+                    console.log('');
                     console.table(info);
                     overview();
                 })
@@ -179,7 +207,9 @@ const addRole = () => {
                     if (err) {
                         throw err;
                     }
+                    console.log('');
                     console.log('You have successfully added a new employee')
+                    console.log('');
                     console.table(info)
                     employeesArray.push(info.first_name)
                     overview();
@@ -215,10 +245,10 @@ const addRole = () => {
                     if (err) {
                         throw err;
                     }
-                    console.log('')
-                    console.log('You have successfully updated a employees role')
-                    console.log(`${info.update_role} role has been changed to ${info.new_role}`)
-                    console.log()
+                    console.log('');
+                    console.log('You have successfully updated a employees role');
+                    console.log(`${info.update_role} role has been changed to ${info.new_role}`);
+                    console.log('');
                     overview();
                 })
             })
@@ -239,8 +269,7 @@ const addRole = () => {
                         throw err
                     }
                     console.log('')
-                    console.log('You have successfully created a new department')
-                    console.log(`The department ${info.add_department} has been added`)
+                    console.log(`You have successfully created a new department called ${info.add_department}`)
                     console.log('')
                     departmentsArray.push(info.add_department)
                     overview();
