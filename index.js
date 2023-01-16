@@ -26,7 +26,7 @@ const overview = () => {
             type: 'list',
             message: 'What would your like to do?',
             name: 'view',
-            choices: ['View All Employees','View All Roles', 'View All Departments', 'View Employees by department', 'Add Role', 'Add Department', 'Add Employee', 'Update Employee Role', 'Exit']
+            choices: ['View All Employees','View All Roles', 'View All Departments', 'View Employees by department','View Department Budgets', 'Add Role', 'Add Department', 'Add Employee', 'Update Employee Role', 'Exit']
         }
 
     ])
@@ -47,13 +47,36 @@ const overview = () => {
             addEmployee();
         }else if (choice.view === 'Update Employee Role') {
             updateRole();
+        }else if (choice.view === 'View Department Budgets') {
+            viewBudgets();
         }else if (choice.view === 'Exit') {
             process.exit();
         }
         
     })
 };
-
+const viewBudgets = () => {
+    inquirer.prompt([
+        {
+            type: 'list',
+            message: 'What department would you like to see the budget for?',
+            name : 'budget',
+            choices: departmentsArray
+        }
+    ]).then ((info) => {
+        const budg = ` SELECT departments.department_name AS Department, SUM(roles.salary) AS Budget FROM roles INNER JOIN departments ON departments.id = roles.department_id WHERE departments.department_name = ?`
+        db.query(budg, info.budget, (err, res) => {
+            if (err) {
+                throw err
+            }
+            console.log('');
+            console.log(`Viewing the budget from the ${info.budget} department`);
+            console.log('');
+            console.table(res);
+            overview();
+        })
+    })
+}
 const ViewAllEmployeesByDept = () => {
     inquirer.prompt([
         {
@@ -211,7 +234,6 @@ const addRole = () => {
                     console.log('You have successfully added a new employee')
                     console.log('');
                     console.table(info)
-                    employeesArray.push(info.first_name)
                     overview();
                 })
             }) 
@@ -219,13 +241,18 @@ const addRole = () => {
     };
     
     const updateRole = () => {
-        
+        let sql = `SELECT employees.employee_id, employees.first_name, employees.last_name FROM employees`;
+
+    db.query(sql, (error, response) => {
+      if (error) throw error;
+      let employeeNamesArray = [];
+      response.forEach((employees) => {employeeNamesArray.push(`${employees.first_name} ${employees.last_name}`)});
         inquirer.prompt([
             {
                 type: 'list',
                 message: 'Which employee would your like to update their role?',
                 name: 'update_role',
-                choices: employeesArray,
+                choices: employeeNamesArray,
             },
             {
                 type: 'list',
@@ -253,6 +280,7 @@ const addRole = () => {
                 })
             })
         })
+    })
     };
     
     const addDepartment = () => {
@@ -277,16 +305,16 @@ const addRole = () => {
             })
     };
 
-    const employeesArray = [];
-        const grabEmployees = `SELECT first_name FROM employees`
-        db.query(grabEmployees, (err, res) => {
-            if (err) {
-                throw err
-            }
-            res.forEach(({first_name}) =>{
-                employeesArray.push(first_name);
-            });
-        });
+    // const employeesArray = [];
+    //     const grabEmployees = `SELECT first_name FROM employees`
+    //     db.query(grabEmployees, (err, res) => {
+    //         if (err) {
+    //             throw err
+    //         }
+    //         res.forEach(({first_name}) =>{
+    //             employeesArray.push(first_name);
+    //         });
+    //     });
 
         const rolesArray = [];
         const grabroles = 'SELECT title FROM roles'
